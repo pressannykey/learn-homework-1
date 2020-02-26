@@ -12,26 +12,34 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
 
 
 def greet_user(bot, update):
-    text = 'вызван /start'
-    logging.info(text)
+    text = 'Приветствую!'
     update.message.reply_text(text)
+
+    logging.info('User: %s, Message: %s',
+                 update.message.chat.username, text)
 
 
 def talk_to_me(bot, update):
-    user_text = 'Привет, {}! Ты написал: {}'.format(
+    text = '{}, ты написал: {}'.format(
         update.message.chat.first_name, update.message.text)
-    logging.info('User: %s, Chat id: %s, Message: %s',
-                 update.message.chat.username, update.message.chat.id, update.message.text)
-    update.message.reply_text(user_text)
+    update.message.reply_text(text)
+
+    logging.info('User: %s, Message: %s --> Answer: %s',
+                 update.message.chat.username, update.message.text, text)
 
 
 def word_count(bot, update):
     input = re.split(r'[ ,]+', update.message.text)
     if len(input) > 1:
         result = len(input)-1
-        update.message.reply_text(f'Слов: {result}')
+        text = f'Слов: {result}'
+        update.message.reply_text(text)
     else:
-        update.message.reply_text('Некорректный ввод')
+        text = 'Напиши что-нибудь после /wordcount, а я посчитаю количество слов'
+        update.message.reply_text(text)
+
+    logging.info('User: %s, Message: %s --> Answer: %s',
+                 update.message.chat.username, update.message.text, text)
 
 
 def next_full_moon(bot, update):
@@ -43,8 +51,31 @@ def next_full_moon(bot, update):
         text = 'Ближайшее полнолуние {}.'.format(result)
         update.message.reply_text(text)
     except (ValueError, IndexError):
-        text = 'Команда принимает дату в формате YYYY-MM-DD'
+        text = 'Напиши после /next_full_moon дату в формате YYYY-MM-DD, а я расскажу, когда ближайшее полнолуние'
         update.message.reply_text(text)
+
+    logging.info('User: %s, Message: %s --> Answer: %s',
+                 update.message.chat.username, update.message.text, text)
+
+
+def get_constellation(bot, update):
+    user_input = update.message.text.split()
+    if len(user_input) > 1:
+        planet = user_input[1].capitalize()
+        today = update.message.date
+        try:
+            result = ephem.constellation(getattr(ephem, planet)(today))
+            text = 'Cегодня {} в созвездии {}!'.format(planet, result[1])
+            update.message.reply_text(text)
+        except AttributeError:
+            text = 'Такой планеты не существует'
+            update.message.reply_text(text)
+    else:
+        text = 'Напиши после /planet название планеты на английском, а я расскажу, в каком она созвездии сегодня'
+        update.message.reply_text(text)
+
+    logging.info('User: %s, Message: %s --> Answer: %s',
+                 update.message.chat.username, update.message.text, text)
 
 
 def main():
@@ -57,6 +88,7 @@ def main():
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
     dp.add_handler(CommandHandler("wordcount",  word_count))
     dp.add_handler(CommandHandler("next_full_moon",  next_full_moon))
+    dp.add_handler(CommandHandler("planet", get_constellation))
 
     mybot.start_polling()
     mybot.idle()
