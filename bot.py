@@ -29,9 +29,9 @@ def talk_to_me(bot, update):
 
 
 def word_count(bot, update):
-    input = re.split(r'[ ,]+', update.message.text)
-    if len(input) > 1:
-        result = len(input)-1
+    user_input = re.split(r'[ ,]+', update.message.text)
+    if len(user_input) > 1:
+        result = len(user_input)-1
         text = f'Слов: {result}'
         update.message.reply_text(text)
     else:
@@ -43,9 +43,9 @@ def word_count(bot, update):
 
 
 def next_full_moon(bot, update):
-    input = update.message.text.split()
+    user_input = update.message.text.split()
     try:
-        date = input[1]
+        date = user_input[1]
         datetime.datetime.strptime(date, '%Y-%m-%d')
         result = ephem.next_full_moon(date)
         text = 'Ближайшее полнолуние {}.'.format(result)
