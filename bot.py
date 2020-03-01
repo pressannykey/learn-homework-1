@@ -1,9 +1,11 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
-import settings
-import ephem
-import datetime
 import re
+from datetime import datetime
+
+import ephem
+from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
+
+import settings
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
@@ -46,7 +48,7 @@ def next_full_moon(bot, update):
     user_input = update.message.text.split()
     try:
         date = user_input[1]
-        datetime.datetime.strptime(date, '%Y-%m-%d')
+        datetime.strptime(date, '%Y-%m-%d')
         result = ephem.next_full_moon(date)
         text = 'Ближайшее полнолуние {}.'.format(result)
         update.message.reply_text(text)
